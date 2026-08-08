@@ -88,9 +88,9 @@ data$Stress_Group <- factor(data$Stress_Group,
 # Because the OLS coefficient estimator is a linear function of the model errors, approximate normality of errors supports an approximately normal sampling distribution of coefficient estimates and therefore conventional t- and F-based inference.
 # Therefore, normality of errors mainly supports the validity of conventional hypothesis testing based on t and F distributions,especially in small samples because in large sample, CLT can compensate
 # QQ plot and the Shapiro-Wilk test (S-W test) will be used for checking the assumption
-Residuals_Normality <- function(model){
+Residuals_Normality_Checking <- function(model){
   Residuals_Model <- residuals(model) # Inset any linear regression model, the functions automatically compute its residuals for later calculations if applicable
-  par(mfrow = c(1,2))
+  par(mfrow=c(1,2))
        hist(Residuals_Model,
        breaks = 10,
        freq = FALSE,
@@ -106,6 +106,7 @@ Residuals_Normality <- function(model){
        qqline(Residuals_Model,
          col = "red"
          )
+       
        print(shapiro.test(Residuals_Model)) #S-W test for statistically testing normality of residuals where H0 = no violation of normality of errors
 } # As expected, once model is constructed and inserted into the fucntion, hitogram of residuals, Q-Q plot of residuals and result of S-W test should be delivered. 
 #Based on the result, deciding whether the assumption of normality of errors is violated or not visually and statistically. Remedy (e.g., log-transformation is then required if there is violation)
@@ -116,7 +117,8 @@ Residuals_Normality <- function(model){
 # Thereforem the inference and estimation are risky to be invalid and meaningless if the assumtpion is violated
 #Scatterplot (fitted values VS. residuals) visual inspection can be used for checking the assumption. Notice, the scatterplot can also partially provide certain evidence that whether the assumption of Homoscedasticity is violated visually
 
-Linearity_Relationship <- function(model){
+Linearity_Relationship_Checking <- function(model){
+  par(mfrow=c(1,1))
   plot(fitted(model),
        residuals(model),
        xlab = "Fitted Values",
@@ -141,7 +143,8 @@ Homoscedasticity_Checking <- function(model){
 # Cook's distance measures the influence of each observation on the regression equation. 
 
 Outlier_Checking <- function(model){
-  cd <- cook_distance(model)
+  par(mfrow=c(1,1))
+  cd <- cooks.distance(model)
   plot(cd,
        type = "h",
        main = "Cook's Distance",
@@ -152,7 +155,7 @@ Outlier_Checking <- function(model){
 #---------------------------------------------------------------
 # CHECK 5 Multicollinearity
 # A high Multicollinearity among variables suggesting a high intrinsically high relationship among predictors makes it difficult to isolate each predictor's individual effect
-# Therefore, the violation leads to more noise in coefficeint calculation with increased estimation uncertainty despite possibly well predictive accuracy
+# Therefore, the violation leads to more noise in coeffcientcalculation with increased estimation uncertainty despite possibly well predictive accuracy
 # NOTICE: multicollinearity is only checked when there is two or more predictors incorporated into the model. 
 
 Multicollinearity_Checking <- function(model){ # Use hte function when model includes at least two predictors
@@ -163,7 +166,23 @@ Multicollinearity_Checking <- function(model){ # Use hte function when model inc
   round(VIF_and_Tolerance, 5)
 }
 
+#All of the above defined functions can be used in any models directly before formal data analysis for diagnosis of assumption with change of specifci model as input
 
+#=====================================================================================================================
+# MODULE3: Data Analysis Aim 1: Sleepiness-Related Measurements and Emotion Regulation Ability
+#=====================================================================================================================
+# SUBSET1: Relationship Between Sleep Hours and Emotion Regulation Scores
+Aim1_model1 <- lm(Emotion_Regulation_Score ~ c_sleep_hours, data = data) # Construction of simple linear regression model
+summary(Aim1_model1)
 
+# Assumption Chekcing 
+Residuals_Normality_Checking(Aim1_model1) # Checking for normality of errors
+Linearity_Relationship_Checking(Aim1_model1) # Checking for whether relationship is linear
+Homoscedasticity_Checking(Aim1_model1) # B-P test for checking homogeneity of variance
+Outlier_Checking(Aim1_model1) # Checking for the existence of serious outlier
+
+# A statistical significant result is found in S-W test; therefore remedy is required. Bootstrapping is conducted
+fit_model1 <- car::Boot(Aim1_model1, R = 5000)
+confint(fit_model1, level = .95)
 
 
