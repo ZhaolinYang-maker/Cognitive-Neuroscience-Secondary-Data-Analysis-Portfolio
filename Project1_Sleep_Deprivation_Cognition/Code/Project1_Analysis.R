@@ -11,6 +11,9 @@ install.packages("lmtest")
 library(lmtest)
 install.packages("car")
 library(car)
+install.packages("boot")
+library(boot)
+
 
 
 #=====================================================================================================================
@@ -172,7 +175,11 @@ Multicollinearity_Checking <- function(model){ # Use hte function when model inc
 # MODULE3: Data Analysis Aim 1: Sleepiness-Related Measurements and Emotion Regulation Ability
 #=====================================================================================================================
 # SUBSET1: Relationship Between Sleep Hours and Emotion Regulation Scores
-Aim1_model1 <- lm(Emotion_Regulation_Score ~ c_sleep_hours, data = data) # Construction of simple linear regression model
+Aim1_model1 <- lm(
+  Emotion_Regulation_Score ~ c_sleep_hours,
+  data=data,
+  model = TRUE
+) # Construction of simple linear regression model
 summary(Aim1_model1)
 
 # Assumption Chekcing 
@@ -181,8 +188,5 @@ Linearity_Relationship_Checking(Aim1_model1) # Checking for whether relationship
 Homoscedasticity_Checking(Aim1_model1) # B-P test for checking homogeneity of variance
 Outlier_Checking(Aim1_model1) # Checking for the existence of serious outlier
 
-# A statistical significant result is found in S-W test; therefore remedy is required. Bootstrapping is conducted
-fit_model1 <- car::Boot(Aim1_model1, R = 5000)
-confint(fit_model1, level = .95)
-
+result <- Boot(Aim1_model1, R = 5000)
 
