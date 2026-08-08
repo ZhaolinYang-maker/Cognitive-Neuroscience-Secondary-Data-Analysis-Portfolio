@@ -164,7 +164,6 @@ Multicollinearity_Checking <- function(model){ # Use hte function when model inc
 }
 
 
-sssbbb
 
 
 
