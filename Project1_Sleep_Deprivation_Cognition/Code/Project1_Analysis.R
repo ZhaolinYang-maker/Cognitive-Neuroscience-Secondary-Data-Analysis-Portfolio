@@ -13,7 +13,8 @@ install.packages("car")
 library(car)
 install.packages("boot")
 library(boot)
-
+install.packages("scatterplot3d")
+library(scatterplot3d)
 
 
 #=====================================================================================================================
@@ -177,16 +178,80 @@ Multicollinearity_Checking <- function(model){ # Use hte function when model inc
 # SUBSET1: Relationship Between Sleep Hours and Emotion Regulation Scores
 Aim1_model1 <- lm(
   Emotion_Regulation_Score ~ c_sleep_hours,
-  data=data,
+  data=.GlobalEnv$data,
   model = TRUE
 ) # Construction of simple linear regression model
 summary(Aim1_model1)
 
-# Assumption Chekcing 
+# Scatterplot Visualization
+plot(data$c_sleep_hours,
+     data$Emotion_Regulation_Score,
+     xlab = "Sleep Hours",
+     ylab = "Emotion Regulation Scores",
+     main = "Relationship between Sleep Duration and Emotion Regulation")
+curve(
+  coef(Aim1_model1)[1] + coef(Aim1_model1)[2]*x,
+  add = TRUE,
+  col = "red"
+)
+
+Confidence_Interval_Band <- data.frame(
+  data$c_sleep_hours,
+  predict(
+    Aim1_model1, 
+    interval = "confidence", 
+    level = 0.95,
+  )
+) # CI band representing uncertainty of conditional expectation corresponding to predictor values
+
+# Assumption Checking
 Residuals_Normality_Checking(Aim1_model1) # Checking for normality of errors
 Linearity_Relationship_Checking(Aim1_model1) # Checking for whether relationship is linear
 Homoscedasticity_Checking(Aim1_model1) # B-P test for checking homogeneity of variance
 Outlier_Checking(Aim1_model1) # Checking for the existence of serious outlier
 
-result <- Boot(Aim1_model1, R = 5000)
+#Due to potential deviation from residual normality (S-W test shows a statistical significant result), bootstrap confidence intervals were additionally examined.
+Bootstrapping_result <- Boot(Aim1_model1, R = 5000) # 5000 samples is recommended for stability
+confint(Bootstrapping_result, level = 0.95) 
+
+#SUBSET2: Relationship Between Sleep Quality and Sleep Hours and Emotional Regulation
+Aim1_model2 <- lm(
+  Emotion_Regulation_Score ~ c_sleep_hours + c_sleep_quality,
+  data = data,
+  model = TRUE
+) # Construction of the multiple linear regression model
+summary(Aim1_model2)
+
+Residuals_Normality_Checking(Aim1_model2) 
+Linearity_Relationship_Checking(Aim1_model2) 
+Homoscedasticity_Checking(Aim1_model2) 
+Outlier_Checking(Aim1_model2) #
+Multicollinearity_Checking(Aim1_model2) # Checking for multicollinearity since there are two predictors now
+
+confint(Aim1_model2, level = .95) # 95% confidence interval for parameter estimation
+
+# 3D Space scatterplot Visualization
+Three_D_visualization <- with(data,
+                      scatterplot3d (Emotion_Regulation_Score ~ c_sleep_hours + c_sleep_quality,
+                                     xlab = "Sleep Hours(mean-centering)", 
+                                     ylab = "Sleep Quality(mean-centering)", 
+                                     zlab = "Emotion Regulation Scores",
+                                     main = "Multiple Regression Visualization of Sleep-Related Predictors of Emotion Regulation",
+                                     pch = 20, 
+                                     color = "blue")
+)
+Three_D_visualization$plane3d(Aim1_model2)  # OLS-based constructed hyperplane representing "best-fitting" solution in Multiple linear regression 
+
+d_R_Square <- summary(Aim1_model2)$adj.r.squared - summary(Aim1_model1)$adj.r.squared # Difference on adjusted R^square in comparison
+Comparison <- anova(Aim1_model1,Aim1_model2) # Comparison on improvement between model indicates whether the improvement is statistically significantly 
+cat("Magnitude of R^2:", round(d_R_Square, 3),
+    "\nP-Value:", round(Comparison$`Pr(>F)`[2], 3)) # Output results; Magnitude and statistical significance of improvement
+
+Moderation_model3 <- lm(Emotion_Regulation_Score ~ c_sleep_hours*c_sleep_quality, data = data)
+summary(Moderation_model3)
+
+
+  
+
+
 
