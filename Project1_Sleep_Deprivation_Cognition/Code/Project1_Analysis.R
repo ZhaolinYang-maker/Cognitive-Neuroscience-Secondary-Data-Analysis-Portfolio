@@ -19,7 +19,6 @@ library(scatterplot3d)
 install.packages("MASS")
 install.packages("factoextra")
 install.packages("ggplot2")
-
 library(MASS)
 library(factoextra)
 library(ggplot2)
@@ -192,26 +191,35 @@ Aim1_model1 <- lm(
 ) # Construction of simple linear regression model
 summary(Aim1_model1)
 
-# Scatterplot Visualization
+# Scatterplot Visualization with OLS-based Regression line and confidence interval band
 plot(data$c_sleep_hours,
      data$Emotion_Regulation_Score,
      xlab = "Sleep Hours",
      ylab = "Emotion Regulation Scores",
      main = "Relationship between Sleep Duration and Emotion Regulation")
-curve(
-  coef(Aim1_model1)[1] + coef(Aim1_model1)[2]*x,
-  add = TRUE,
-  col = "red"
+x_new <- seq(min(data$c_sleep_hours),
+             max(data$c_sleep_hours),
+             length.out=100)
+
+CI_band <- predict(
+  Aim1_model1,
+  newdata=data.frame(c_sleep_hours=x_new),
+  interval="confidence",
+  level=0.95 # 95% confidence interval band
 )
 
-Confidence_Interval_Band <- data.frame(
-  data$c_sleep_hours,
-  predict(
-    Aim1_model1, 
-    interval = "confidence", 
-    level = 0.95,
-  )
-) # CI band representing uncertainty of conditional expectation corresponding to predictor values
+polygon(
+  c(x_new, rev(x_new)),
+  c(CI_band[,2], rev(CI_band[,3])),
+  col= rgb(0.7, 0.7, 0.7, 0.3),
+  border=NA
+)
+curve(
+  coef(Aim1_model1)[1] + coef(Aim1_model1)[2]*x,
+  add=TRUE,
+  col="red",
+  lwd=2
+)
 
 # Assumption Checking
 Residuals_Normality_Checking(Aim1_model1) # Checking for normality of errors
@@ -291,10 +299,11 @@ Cognitive_Measurements_Rotation <- principal(
 Cognitive_Measurements_Rotation$loadings
 
 # SUBSET 2: Relationship Between Emotion Regulation and Stroop task RT
-Aim2_model1 <- lm(Stroop_Task_Reaction_Time ~ c_emotion_regulation, data = data) # NOTICE: Higher Stroop task RT means worse performance
+Aim2_model1 <- lm(Stroop_Task_Reaction_Time ~ c_emotion_regulation,
+                  data = data) # NOTICE: Higher Stroop task RT means worse performance
 summary(Aim2_model1)
 
-#Assumptions Checking
+#Assumptions Checking 
 Residuals_Normality_Checking(Aim2_model1)
 Linearity_Relationship_Checking(Aim1_model1)
 Homoscedasticity_Checking(Aim2_model1)
