@@ -16,6 +16,15 @@ library(boot)
 install.packages("scatterplot3d")
 library(scatterplot3d)
 
+install.packages("MASS")
+install.packages("factoextra")
+install.packages("ggplot2")
+
+library(MASS)
+library(factoextra)
+library(ggplot2)
+
+
 
 #=====================================================================================================================
 # MODULE1: Dataset Overview and Descriptive Statistics
@@ -253,8 +262,43 @@ summary(Moderation_model3) # Primarily focusing on statistical significance of i
 #END for the AIM1
 
 #=====================================================================================================================
-# MODULE4: Data Analysis Aim 2: Cogntive Performance and Psychological States
+# MODULE4: Data Analysis Aim 2: Cognitive Performance and Psychological States
 #=====================================================================================================================
+# SUBSET 1: Exploratory data analysis for testing whether the three cognitive ability measurements can be compressed to one variable (e.g. general cognitive ability indicator)
 
+# Principal Component Analysis (PCA) is conducted; PCA aims to compress the three variables with preservation of most information (total variance within each variable)
+Cognitive_Measurement <- data[, c(
+  "Stroop_Task_Reaction_Time",
+  "N_Back_Accuracy",
+  "PVT_Reaction_Time"
+)]
+Cognitive_Measurements_PCA <- prcomp(Cognitive_Measurement,
+                   scale = TRUE) # Standardized data; the value of any single eigenvalue is theoretically maximally 3 (Three variables)
+summary(Cognitive_Measurements_PCA) # Proportion of total variance (normalized expression of each eigenvalue) captured each PC and cumulative proportion of explained variance
 
+#Scree plot for explained variance by PCs
+fviz_eig(Cognitive_Measurements_PCA,
+         addlabels = TRUE, # Visualization of proportion of explained variance by PCs
+         ylim = c(0,100),
+         main = "Scree Plot for proportion of Explained Total Variance by PCs"
+         )
 
+Cognitive_Measurements_Rotation <- principal(
+  Cognitive_Measurement,
+  nfactors = 3,
+  rotate = "varimax"# Varimax rotation
+)
+Cognitive_Measurements_Rotation$loadings
+
+# SUBSET 2: Relationship Between Emotion Regulation and Stroop task RT
+Aim2_model1 <- lm(Stroop_Task_Reaction_Time ~ c_emotion_regulation, data = data) # NOTICE: Higher Stroop task RT means worse performance
+summary(Aim2_model1)
+
+#Assumptions Checking
+Residuals_Normality_Checking(Aim2_model1)
+Linearity_Relationship_Checking(Aim1_model1)
+Homoscedasticity_Checking(Aim2_model1)
+Outlier_Checking(Aim2_model1)
+
+Bootstrapping_result <- Boot(Aim2_model1, R = 5000) # 5000 samples is recommended for stability
+confint(Bootstrapping_result, level = 0.95) 
