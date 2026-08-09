@@ -247,11 +247,14 @@ Comparison <- anova(Aim1_model1,Aim1_model2) # Comparison on improvement between
 cat("Magnitude of R^2:", round(d_R_Square, 3),
     "\nP-Value:", round(Comparison$`Pr(>F)`[2], 3)) # Output results; Magnitude and statistical significance of improvement
 
-Moderation_model3 <- lm(Emotion_Regulation_Score ~ c_sleep_hours*c_sleep_quality, data = data)
-summary(Moderation_model3)
+Moderation_model3 <- lm(Emotion_Regulation_Score ~ c_sleep_hours*c_sleep_quality, data = data) # Incorporating interaction term
+summary(Moderation_model3) # Primarily focusing on statistical significance of interaction term
 
+#END for the AIM1
 
-  
+#=====================================================================================================================
+# MODULE4: Data Analysis Aim 2: Cogntive Performance and Psychological States
+#=====================================================================================================================
 
 
 
