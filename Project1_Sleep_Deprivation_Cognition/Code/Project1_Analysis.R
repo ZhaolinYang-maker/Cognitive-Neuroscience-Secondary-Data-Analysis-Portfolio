@@ -300,7 +300,7 @@ Cognitive_Measurements_Rotation$loadings
 
 # SUBSET 2: Relationship Between Emotion Regulation and Stroop task RT
 Aim2_model1 <- lm(Stroop_Task_Reaction_Time ~ c_emotion_regulation,
-                  data = data) # NOTICE: Higher Stroop task RT means worse performance
+                  data = .GlobalEnv$data) # NOTICE: Higher Stroop task RT means worse performance
 summary(Aim2_model1)
 
 #Assumptions Checking 
@@ -311,3 +311,4 @@ Outlier_Checking(Aim2_model1)
 
 Bootstrapping_result <- Boot(Aim2_model1, R = 5000) # 5000 samples is recommended for stability
 confint(Bootstrapping_result, level = 0.95) 
+
