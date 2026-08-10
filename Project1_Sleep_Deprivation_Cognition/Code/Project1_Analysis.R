@@ -343,9 +343,9 @@ Bootstrapping_result <- Boot(Aim2_model1, R = 5000) # 5000 samples is recommende
 confint(Bootstrapping_result, level = 0.95) 
 
 # SUBSET 3: Relationship Between Stress Group and N_Back_Accuracy in Controlling for Emotion Regulation Score
-Aim2_model2 <- aov(N_Back_Accuracy ~ Stress_Group, data = data) 
-summary(Aim2_model2)
-TukeyHSD(Aim2_model2) # Additional Exploration and description
+Reduced_Aim2_model2 <- aov(N_Back_Accuracy ~ Stress_Group, data = data) 
+summary(Reduced_Aim2_model2)
+TukeyHSD(Reduced_Aim2_model2) # Additional Exploration and description
 
 #Visualization with boxplot
 boxplot(N_Back_Accuracy ~ Stress_Group,
@@ -361,9 +361,14 @@ Aim2_model_Checking <- lm(N_Back_Accuracy ~ Stress_Group, data = data) # ANOVA i
 
 Residuals_Normality_Checking(Aim2_model_Checking)
 Homoscedasticity_Checking(Aim2_model_Checking) # Testing homogeneity of variance of each gorup with a linear regression version
-leveneTest(Aim2_model2) # Function particularly designed for testing homogeneity of vairance in ANOVA
+leveneTest(leveneTest(
+  N_Back_Accuracy ~ Stress_Group,
+  data=data
+)) # Function particularly designed for testing homogeneity of vairance in ANOVA
 Outlier_Checking (Aim2_model_Checking)
 
+# ANCOVA model with incorporation of emotion regulation score as a covaraite
+Aim2_model
 
 
 
