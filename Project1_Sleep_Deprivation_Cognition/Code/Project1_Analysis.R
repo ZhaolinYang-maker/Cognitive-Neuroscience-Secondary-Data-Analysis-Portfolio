@@ -357,7 +357,6 @@ boxplot(N_Back_Accuracy ~ Stress_Group,
 )
 
 # Necessary Assumptions Checking
-
 Residuals_Normality_Checking(Reduced_Aim2_model2)# Testing homogeneity of variance of each gorup with a linear regression version
 leveneTest(N_Back_Accuracy ~ Stress_Group,
   data=data
@@ -374,8 +373,41 @@ anova(
 
 full_Aim2_model2 <- aov(N_Back_Accuracy ~ Stress_Group + c_emotion_regulation,
                         data = data) # ANCOVA model incorporating centered emotion reuglation score as a covariate
+summary(full_Aim2_model2)
 
-#Visualization of ANCOVA model 
+# Visualization of ANCOVA model 
+colors <- ifelse(data$Stress_Group== "High Stress", "red",  #Nested structure of ifelse() fucntion gurantees that each treatment (stress groups) will have a corresponding color 
+                 ifelse(data$Stress_Group =="Moderate Stress", "blue","brown")
+                 ) #If the stress group is high stress, then the color for observations is red; Otherwise, if it is moderate stress group, the assigned color is blue; otherwise, low stress group's observations are brown
+
+with(data, plot(
+  c_emotion_regulation, N_Back_Accuracy,
+  xlab = "(mean-centering) Emotion Regulation Scores", # Setting of name of x-dimension
+  ylab = "N Back Task Accuracy",  
+  main = "Homogeneity of Slepes Visualization",
+  col = colors,
+  pch = 20,
+  xlim=c(min(c_emotion_regulation),
+         max(c_emotion_regulation)), # Setting range for x-dimension
+  ylim=c(min(N_Back_Accuracy),
+         max(N_Back_Accuracy))# Setting range for y-dimension
+))
+
+#Step 3, projecting Regression Line for graphical presentation
+curve (cbind (1, 0, 0, x) %*% coef(full_Aim2_model2), add = TRUE, col = "brown", lwd = 3) 
+curve (cbind (1, 1, 0, x) %*% coef(full_Aim2_model2), add = TRUE, col = "blue", lwd = 3)
+curve (cbind (1, 0, 1, x) %*% coef(full_Aim2_model2), add = TRUE, col = "red", lwd = 3)
+
+legend( # Assignment of names to the three slopes
+  "topleft", legend=c(
+    "High Stress",
+    "Moderate Stress",
+    "Low Stress" # What are the names for the three slopes respectively
+  ),
+  col=c("red","blue","brown"),
+  lwd=3
+)
+
 
 
 
