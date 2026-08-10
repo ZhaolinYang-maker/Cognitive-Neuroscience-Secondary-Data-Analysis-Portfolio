@@ -23,6 +23,9 @@ library(MASS)
 library(factoextra)
 library(ggplot2)
 
+install.packages("emmeans")
+library(emmeans)
+
 
 
 #=====================================================================================================================
@@ -394,19 +397,21 @@ with(data, plot(
 ))
 
 #Step 3, projecting Regression Line for graphical presentation
-curve (cbind (1, 0, 0, x) %*% coef(full_Aim2_model2), add = TRUE, col = "brown", lwd = 3) 
-curve (cbind (1, 1, 0, x) %*% coef(full_Aim2_model2), add = TRUE, col = "blue", lwd = 3)
-curve (cbind (1, 0, 1, x) %*% coef(full_Aim2_model2), add = TRUE, col = "red", lwd = 3)
+curve (cbind (1, 0, 0, x) %*% coef(full_Aim2_model2), add = TRUE, col = "brown", lwd = 3) # Slopes for low-stress group
+curve (cbind (1, 1, 0, x) %*% coef(full_Aim2_model2), add = TRUE, col = "blue", lwd = 3) # Slope for moderate stress group
+curve (cbind (1, 0, 1, x) %*% coef(full_Aim2_model2), add = TRUE, col = "red", lwd = 3) # Slope for high-stress group
 
 legend( # Assignment of names to the three slopes
   "topleft", legend=c(
-    "High Stress",
+    "Low Stress",
     "Moderate Stress",
-    "Low Stress" # What are the names for the three slopes respectively
+    "High Stress" # What are the names for the three slopes respectively
   ),
-  col=c("red","blue","brown"),
+  col=c("brown","blue","red"),
   lwd=3
 )
+
+lsmeans(full_Aim2_model2, "Stress_Group") # Output of adjusted group means in controlling emotion regulation scores to its mean for observations
 
 
 
