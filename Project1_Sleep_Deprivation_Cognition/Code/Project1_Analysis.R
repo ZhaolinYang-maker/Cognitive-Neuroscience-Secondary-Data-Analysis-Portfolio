@@ -303,6 +303,36 @@ Aim2_model1 <- lm(Stroop_Task_Reaction_Time ~ c_emotion_regulation,
                   data = .GlobalEnv$data) # NOTICE: Higher Stroop task RT means worse performance
 summary(Aim2_model1)
 
+plot(data$c_emotion_regulation,
+     data$Stroop_Task_Reaction_Time,
+     xlab = "Emotion Regulation Scores",
+     ylab = "Stroop Task RT",
+     main = "Relationship between Emotion Regulation and Stroop Task RT")
+x_new <- seq(min(data$c_emotion_regulation),
+             max(data$c_emotion_regulation),
+             length.out=100)
+
+#Visualization of OLS-based Regression Line and confidence interval band
+CI_band <- predict(
+  Aim2_model1,
+  newdata=data.frame(c_emotion_regulation=x_new),
+  interval="confidence",
+  level=0.95 # 95% confidence interval band
+)
+
+polygon(
+  c(x_new, rev(x_new)),
+  c(CI_band[,2], rev(CI_band[,3])),
+  col= rgb(0.7, 0.7, 0.7, 0.3),
+  border=NA
+)
+curve(
+  coef(Aim2_model1)[1] + coef(Aim2_model1)[2]*x,
+  add=TRUE,
+  col="red",
+  lwd=2
+)
+
 #Assumptions Checking 
 Residuals_Normality_Checking(Aim2_model1)
 Linearity_Relationship_Checking(Aim1_model1)
@@ -311,4 +341,7 @@ Outlier_Checking(Aim2_model1)
 
 Bootstrapping_result <- Boot(Aim2_model1, R = 5000) # 5000 samples is recommended for stability
 confint(Bootstrapping_result, level = 0.95) 
+
+# SUBSET 3: Relationship Between Stress Group and N_Back_Accuracy in Controlling for Emotion Regulation Score
+Aim2_model2 <- lm(N_Back_Accuracy ~)
 
