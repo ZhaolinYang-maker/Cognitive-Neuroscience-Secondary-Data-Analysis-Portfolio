@@ -357,7 +357,12 @@ boxplot(N_Back_Accuracy ~ Stress_Group,
 )
 
 # Necessary Assumptions Checking
-Aim2_model3 <- lm(N_Back_Accuracy ~ Stress_Group, data = data) # ANOVA is a special form of linear regression
+Aim2_model_Checking <- lm(N_Back_Accuracy ~ Stress_Group, data = data) # ANOVA is a special form of linear regression
+
+Residuals_Normality_Checking(Aim2_model_Checking)
+Homoscedasticity_Checking(Aim2_model_Checking) # Testing homogeneity of variance of each gorup with a linear regression version
+leveneTest(Aim2_model2) # Function particularly designed for testing homogeneity of vairance in ANOVA
+Outlier_Checking (Aim2_model_Checking)
 
 
 
