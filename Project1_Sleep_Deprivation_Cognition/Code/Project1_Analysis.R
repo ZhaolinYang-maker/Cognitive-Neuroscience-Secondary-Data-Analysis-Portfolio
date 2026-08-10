@@ -343,5 +343,8 @@ Bootstrapping_result <- Boot(Aim2_model1, R = 5000) # 5000 samples is recommende
 confint(Bootstrapping_result, level = 0.95) 
 
 # SUBSET 3: Relationship Between Stress Group and N_Back_Accuracy in Controlling for Emotion Regulation Score
-Aim2_model2 <- lm(N_Back_Accuracy ~)
+Aim2_model2 <- lm(N_Back_Accuracy ~ Stress_Group, data = data) 
+
+
+
 
