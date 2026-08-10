@@ -357,19 +357,25 @@ boxplot(N_Back_Accuracy ~ Stress_Group,
 )
 
 # Necessary Assumptions Checking
-Aim2_model_Checking <- lm(N_Back_Accuracy ~ Stress_Group, data = data) # ANOVA is a special form of linear regression
 
-Residuals_Normality_Checking(Aim2_model_Checking)
-Homoscedasticity_Checking(Aim2_model_Checking) # Testing homogeneity of variance of each gorup with a linear regression version
-leveneTest(leveneTest(
-  N_Back_Accuracy ~ Stress_Group,
+Residuals_Normality_Checking(Reduced_Aim2_model2)# Testing homogeneity of variance of each gorup with a linear regression version
+leveneTest(N_Back_Accuracy ~ Stress_Group,
   data=data
-)) # Function particularly designed for testing homogeneity of vairance in ANOVA
+) # More appropriate function particularly designed for testing homogeneity of variance in ANOVA
 Outlier_Checking (Aim2_model_Checking)
 
-# ANCOVA model with incorporation of emotion regulation score as a covaraite
-Aim2_model
+# Testing for Homogeneity of slopes
+Aim2_model2_Checking <- lm(N_Back_Accuracy ~ Stress_Group*c_emotion_regulation,
+                           data = data)
+anova(
+  Reduced_Aim2_model2,
+  Aim2_model2_Checking
+)# Examination of statistical significance of interaction term
 
+full_Aim2_model2 <- aov(N_Back_Accuracy ~ Stress_Group + c_emotion_regulation,
+                        data = data) # ANCOVA model incorporating centered emotion reuglation score as a covariate
+
+#Visualization of ANCOVA model 
 
 
 
