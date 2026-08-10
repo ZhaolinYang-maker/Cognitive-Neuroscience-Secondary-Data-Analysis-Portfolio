@@ -343,7 +343,22 @@ Bootstrapping_result <- Boot(Aim2_model1, R = 5000) # 5000 samples is recommende
 confint(Bootstrapping_result, level = 0.95) 
 
 # SUBSET 3: Relationship Between Stress Group and N_Back_Accuracy in Controlling for Emotion Regulation Score
-Aim2_model2 <- lm(N_Back_Accuracy ~ Stress_Group, data = data) 
+Aim2_model2 <- aov(N_Back_Accuracy ~ Stress_Group, data = data) 
+summary(Aim2_model2)
+TukeyHSD(Aim2_model2) # Additional Exploration and description
+
+#Visualization with boxplot
+boxplot(N_Back_Accuracy ~ Stress_Group,
+        data = data,
+        main = "N Back Accuracy by Stress Levels",
+        xlab = "Stress Groups",
+        ylab = "N Back Task Accuracy",
+        col = "lightgray"
+)
+
+# Necessary Assumptions Checking
+Aim2_model3 <- lm(N_Back_Accuracy ~ Stress_Group, data = data) # ANOVA is a special form of linear regression
+
 
 
 
