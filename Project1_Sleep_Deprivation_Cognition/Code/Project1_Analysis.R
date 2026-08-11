@@ -68,6 +68,7 @@ round(descriptive_statistics_table,2) #Combine the values to be a table for summ
 data$c_sleep_hours <- data$Sleep_Hours - mean(data$Sleep_Hours) # Mean-centering of sleep duration in a newly created column
 data$c_sleep_quality <- data$Sleep_Quality_Score - mean(data$Sleep_Quality_Score) # Mean-centering of sleep quality in a newly created column
 data$c_emotion_regulation <- data$Emotion_Regulation_Score - mean(data$Emotion_Regulation_Score) # Mean-centering of emotion regulation in a newly created column
+data$c_Stress_Level <- data$Stress_Level - mean(data$Stress_Level) # Mean-centering of stress level in a newly created colum
 
 #STEP2 Converting continous stress level to categorical variable with three groups based on criteria of level of stress (Perceived Stress Scale PSS-10)
 # PSS-10 evaluates stress levels on a 0 to 40 scale. It classifies low stress group (0-10), moderate stress (14-26) and high stress group (27-40)
@@ -198,7 +199,7 @@ summary(Aim1_model1)
 # Scatterplot Visualization with OLS-based Regression line and confidence interval band
 plot(data$c_sleep_hours,
      data$Emotion_Regulation_Score,
-     xlab = "Sleep Hours",
+     xlab = "(mean-centering) Sleep Hours",
      ylab = "Emotion Regulation Scores",
      main = "Relationship between Sleep Duration and Emotion Regulation")
 x_new <- seq(min(data$c_sleep_hours),
@@ -318,7 +319,7 @@ x_new <- seq(min(data$c_emotion_regulation),
 
 #Visualization of OLS-based Regression Line and confidence interval band
 CI_band <- predict(
-  Aim2_model1,
+  Aim2_model2,
   newdata=data.frame(c_emotion_regulation=x_new),
   interval="confidence",
   level=0.95 # 95% confidence interval band
@@ -346,10 +347,52 @@ Outlier_Checking(Aim2_model1)
 Bootstrapping_result <- Boot(Aim2_model1, R = 5000) # 5000 samples is recommended for stability
 confint(Bootstrapping_result, level = 0.95) 
 
+# SUBSET 3: Relationship Between Stress Level and PVT Task Reaction Time (RT)
+Aim2_model2 <- lm(PVT_Reaction_Time ~ c_Stress_Level, 
+                  data = .GlobalEnv$data,
+                  )
+summary(Aim2_model2)
+
+plot(data$c_Stress_Level,
+     data$PVT_Reaction_Time,
+     xlab = "(mean-centering) Stress Levels",
+     ylab = "PVT Task RT (ms)",
+     main = "Relationship between Stress Levels and PVT task Reaction Time")
+x_new <- seq(min(data$c_Stress_Level),
+             max(data$c_Stress_Level),
+             length.out=100)
+
+CI_band <- predict(
+  Aim2_model2,
+  newdata=data.frame(c_Stress_Level=x_new),
+  interval="confidence",
+  level=0.95 # 95% confidence interval band
+)
+polygon(
+  c(x_new, rev(x_new)),
+  c(CI_band[,2], rev(CI_band[,3])),
+  col= rgb(0.7, 0.7, 0.7, 0.3),
+  border=NA
+)
+curve(
+  coef(Aim2_model2)[1] + coef(Aim2_model2)[2]*x,
+  add=TRUE,
+  col="red",
+  lwd=2
+)
+
+Residuals_Normality_Checking(Aim2_model3)
+Linearity_Relationship_Checking(Aim2_model3)
+Homoscedasticity_Checking(Aim2_model3)
+Outlier_Checking(Aim2_model3)
+
+Bootstrapping_result <- Boot(Aim2_model2, R = 5000) # 5000 samples is recommended for stability
+confint(Bootstrapping_result, level = 0.95) 
+
 # SUBSET 3: Relationship Between Stress Group and N_Back_Accuracy in Controlling for Emotion Regulation Score
-Reduced_Aim2_model2 <- aov(N_Back_Accuracy ~ Stress_Group, data = data) 
-summary(Reduced_Aim2_model2)
-TukeyHSD(Reduced_Aim2_model2) # Additional Exploration and description
+Reduced_Aim2_model3 <- aov(N_Back_Accuracy ~ Stress_Group, data = data) 
+summary(Reduced_Aim2_model3)
+TukeyHSD(Reduced_Aim2_model3) # Additional Exploration and description
 
 #Visualization with boxplot
 boxplot(N_Back_Accuracy ~ Stress_Group,
@@ -361,23 +404,23 @@ boxplot(N_Back_Accuracy ~ Stress_Group,
 )
 
 # Necessary Assumptions Checking
-Residuals_Normality_Checking(Reduced_Aim2_model2)# Testing homogeneity of variance of each gorup with a linear regression version
+Residuals_Normality_Checking(Reduced_Aim2_model3)# Testing homogeneity of variance of each gorup with a linear regression version
 leveneTest(N_Back_Accuracy ~ Stress_Group,
   data=data
 ) # More appropriate function particularly designed for testing homogeneity of variance in ANOVA
-Outlier_Checking (Aim2_model_Checking)
+Outlier_Checking (Reduced_Aim2_model3)
 
 # Testing for Homogeneity of slopes
-Aim2_model2_Checking <- lm(N_Back_Accuracy ~ Stress_Group*c_emotion_regulation,
+Aim2_model3_Checking <- lm(N_Back_Accuracy ~ Stress_Group*c_emotion_regulation,
                            data = data)
 anova(
-  Reduced_Aim2_model2,
-  Aim2_model2_Checking
+  Reduced_Aim2_model3,
+  Aim2_model3_Checking
 )# Examination of statistical significance of interaction term
 
-full_Aim2_model2 <- aov(N_Back_Accuracy ~ Stress_Group + c_emotion_regulation,
+full_Aim2_model3 <- aov(N_Back_Accuracy ~ Stress_Group + c_emotion_regulation,
                         data = data) # ANCOVA model incorporating centered emotion reuglation score as a covariate
-summary(full_Aim2_model2)
+summary(full_Aim2_model3)
 
 # Visualization of ANCOVA model 
 colors <- ifelse(data$Stress_Group== "High Stress", "red",  #Nested structure of ifelse() fucntion gurantees that each treatment (stress groups) will have a corresponding color 
@@ -398,13 +441,13 @@ with(data, plot(
 ))
 
 #Step 3, projecting Regression Line for graphical presentation
-curve (cbind (1, 0, 0, x) %*% coef(full_Aim2_model2), 
+curve (cbind (1, 0, 0, x) %*% coef(full_Aim2_model3), 
        add = TRUE, # The regression line for the baseline group is colored to be brown
        col = "brown", lwd = 3) # Slopes for low-stress group （For the 
-curve (cbind (1, 1, 0, x) %*% coef(full_Aim2_model2), 
+curve (cbind (1, 1, 0, x) %*% coef(full_Aim2_model3), 
        add = TRUE, # The regression line for moderate stress group is colored to be blue
        col = "blue", lwd = 3) # Slope for moderate stress group
-curve (cbind (1, 0, 1, x) %*% coef(full_Aim2_model2), 
+curve (cbind (1, 0, 1, x) %*% coef(full_Aim2_model3), 
        add = TRUE, # The regression line for high stress group is colored to be red
        col = "red", lwd = 3) # Slope for high-stress group
 
@@ -418,6 +461,13 @@ legend( # Assignment of names to the three slopes
   lwd=3
 )
 
-lsmeans(full_Aim2_model2, "Stress_Group") # Output of adjusted group means in controlling emotion regulation scores to its mean for observations
+lsmeans(full_Aim2_model3, "Stress_Group") # Output of adjusted group means in controlling emotion regulation scores to its mean for observations
 
+# SUBSET3: Relationship Between 
+Aim2_model3 <- lm(PVT_Reaction_Time ~ Stress_Level, data = data)
+summary(Aim2_model3)
 
+Linearity_Relationship_Checking(Aim2_model3)
+Homoscedasticity_Checking(Aim2_model3)
+Residuals_Normality_Checking(Aim2_model3)
+Outlier_Checking(Aim2_model3)
