@@ -319,7 +319,7 @@ x_new <- seq(min(data$c_emotion_regulation),
 
 #Visualization of OLS-based Regression Line and confidence interval band
 CI_band <- predict(
-  Aim2_model2,
+  Aim2_model1,
   newdata=data.frame(c_emotion_regulation=x_new),
   interval="confidence",
   level=0.95 # 95% confidence interval band
@@ -368,7 +368,7 @@ CI_band <- predict(
   interval="confidence",
   level=0.95 # 95% confidence interval band
 )
-polygon(
+polygon( 
   c(x_new, rev(x_new)),
   c(CI_band[,2], rev(CI_band[,3])),
   col= rgb(0.7, 0.7, 0.7, 0.3),
@@ -463,11 +463,4 @@ legend( # Assignment of names to the three slopes
 
 lsmeans(full_Aim2_model3, "Stress_Group") # Output of adjusted group means in controlling emotion regulation scores to its mean for observations
 
-# SUBSET3: Relationship Between 
-Aim2_model3 <- lm(PVT_Reaction_Time ~ Stress_Level, data = data)
-summary(Aim2_model3)
 
-Linearity_Relationship_Checking(Aim2_model3)
-Homoscedasticity_Checking(Aim2_model3)
-Residuals_Normality_Checking(Aim2_model3)
-Outlier_Checking(Aim2_model3)
