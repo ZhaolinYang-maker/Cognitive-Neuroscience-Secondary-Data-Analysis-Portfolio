@@ -4,7 +4,7 @@
 data <- read.csv("/Users/zhaolinyang/Desktop/Indpendent Project/Project 1st/Dataset.csv")
 
 install.packages("qqplotr")
-library(qqplotr)
+library(qqplotr) # Visualization of relationship between predcitor(s) and outcome variables
 install.packages("psych")
 library(psych)
 install.packages("lmtest")
@@ -12,19 +12,20 @@ library(lmtest)
 install.packages("car")
 library(car)
 install.packages("boot")
-library(boot)
+library(boot) # Bootstrapping when there is violation of normality of errors in assumptions checking
 install.packages("scatterplot3d")
-library(scatterplot3d)
+library(scatterplot3d) # Visualization of multiple linear regression in a 3D space (two dimensions)
 
+# Necessary packages for principal component analysis for varaibles compression
 install.packages("MASS")
 install.packages("factoextra")
-install.packages("ggplot2")
+install.packages("ggplot2") 
 library(MASS)
 library(factoextra)
-library(ggplot2)
+library(ggplot2) 
 
-install.packages("emmeans")
-library(emmeans)
+install.packages("emmeans") 
+library(emmeans) # Calling for levene test particularly designed for testing of homogeneity of variance in ANOVA or ANCOVA
 
 
 
@@ -418,4 +419,5 @@ legend( # Assignment of names to the three slopes
 )
 
 lsmeans(full_Aim2_model2, "Stress_Group") # Output of adjusted group means in controlling emotion regulation scores to its mean for observations
+
 
