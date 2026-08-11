@@ -463,4 +463,6 @@ legend( # Assignment of names to the three slopes
 
 lsmeans(full_Aim2_model3, "Stress_Group") # Output of adjusted group means in controlling emotion regulation scores to its mean for observations
 
-
+#=====================================================================================================================
+# END for the Project1 Secondary Data Analysis
+#=====================================================================================================================
