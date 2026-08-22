@@ -27,7 +27,14 @@ library(ggplot2)
 install.packages("emmeans") 
 library(emmeans) # Calling for levene test particularly designed for testing of homogeneity of variance in ANOVA or ANCOVA
 
-
+install.packages("corrplot")
+install.packages("dplyr")
+install.packages("reshape2", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/")
+install.packages("Hmisc", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/")
+library(corrplot)
+library(dplyr)
+library(reshape2)
+library(Hmisc)
 
 #=====================================================================================================================
 # MODULE1: Dataset Overview and Descriptive Statistics
@@ -183,11 +190,59 @@ Multicollinearity_Checking <- function(model){ # Use hte function when model inc
   round(VIF_and_Tolerance, 5)
 }
 
-#All of the above defined functions can be used in any models directly before formal data analysis for diagnosis of assumption with change of specifci model as input
+#All of the above defined functions can be used in any models directly before formal data analysis for diagnosis of assumption with change of specific model as input
 
 #=====================================================================================================================
 # MODULE3: Data Analysis Aim 1: Sleepiness-Related Measurements and Emotion Regulation Ability
 #=====================================================================================================================
+# Initial Visually exploration of the correlation structure among variables through correlation matrix heatmap
+# Construction of correlation matrix heatmap
+numeric_data <- data%>%dplyr::select(where(is.numeric)) # Remove all random variables that are not continous numerical but categorical (e.g. gender)
+
+cor_matrix <- cor(numeric_data)
+print(cor_matrix) # Initial establishment of correlation  heatmap matrix mathematically without visualization
+
+# Calculation of values of standardized correlation coefficients and corresponding P-valus
+
+cor_results <- rcorr(as.matrix(numeric_data))
+print(cor_results)
+cor_matrix <- cor_results$r
+sig_matrix <- cor_results$P
+
+stars <- ifelse(sig_matrix < 0.001, "***",
+                ifelse(sig_matrix <  0.01, "**",
+                       ifelse(sig_matrix <0.05, "*",
+                              "n.s")))
+cor_long <- melt(cor_matrix)
+signif_long <- melt(stars)
+
+cor_long$stars <- signif_long$value
+
+ggplot(data = cor_long, 
+       aes(x = Var1, y = Var2, fill = value)) +   
+  geom_tile() +
+  geom_text(aes(label = paste0(round(value,2),stars)), 
+            color = "black", 
+            size = 3,
+            data = cor_long) +
+  scale_fill_gradient2(                
+    low = "red", 
+    high = "blue", 
+    mid = "white",
+    midpoint = 0,
+    limits = c(-1, 1),
+    space = "Lab", 
+    name = "Correlation"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 10, face = "bold"), # Elaboration of word expression of names of random varaibles 
+        axis.text.y = element_text(size = 10, face = "bold"),
+        plot.title = element_text (size = 20, hjust = 0.5, face = "bold")) +
+  labs(title = "Correlation Matrix Heatmap", x = "", y = "",
+       caption = "n.s, p > 0.05, *, p < .05; ** p < .01, *** p < 0.001"
+  )
+# Correlation Heatmap is used for data exploration as it indicates zero-order standardized correaltion coefficeint among random. varaibles 
+
 # SUBSET1: Relationship Between Sleep Hours and Emotion Regulation Scores
 Aim1_model1 <- lm(
   Emotion_Regulation_Score ~ c_sleep_hours,
