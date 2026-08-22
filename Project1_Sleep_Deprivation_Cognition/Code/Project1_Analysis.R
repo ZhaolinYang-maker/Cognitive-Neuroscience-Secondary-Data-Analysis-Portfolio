@@ -3,7 +3,7 @@
 # Read the file from the local computer 
 data <- read.csv("/Users/zhaolinyang/Desktop/Indpendent Project/Project 1st/Dataset.csv")
 
-install.packages("qqplotr")
+vinstall.packages("qqplotr")
 library(qqplotr) # Visualization of relationship between predcitor(s) and outcome variables
 install.packages("psych")
 library(psych)
@@ -14,9 +14,9 @@ library(car)
 install.packages("boot")
 library(boot) # Bootstrapping when there is violation of normality of errors in assumptions checking
 install.packages("scatterplot3d")
-library(scatterplot3d) # Visualization of multiple linear regression in a 3D space (two dimensions)
+library(scatterplot3d) # Visualization of multiple linear regression in a 3D space with OLS hyperplane(two dimensions)
 
-# Necessary packages for principal component analysis for varaibles compression
+# Necessary packages for principal component analysis (PCA) for variables compression exploratorily 
 install.packages("MASS")
 install.packages("factoextra")
 install.packages("ggplot2") 
@@ -27,9 +27,11 @@ library(ggplot2)
 install.packages("emmeans") 
 library(emmeans) # Calling for levene test particularly designed for testing of homogeneity of variance in ANOVA or ANCOVA
 
+# Installation of necessary packages for construction of correlation heatma for exploratory visualization
 install.packages("corrplot")
 install.packages("dplyr")
-install.packages("reshape2", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/")
+# Due to internet restriction, mirror site is used for the installation. Here, mirror site of Tsinghua University is used for the installation
+install.packages("reshape2", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/") 
 install.packages("Hmisc", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/")
 library(corrplot)
 library(dplyr)
@@ -197,7 +199,18 @@ Multicollinearity_Checking <- function(model){ # Use hte function when model inc
 #=====================================================================================================================
 # Initial Visually exploration of the correlation structure among variables through correlation matrix heatmap
 # Construction of correlation matrix heatmap
-numeric_data <- data%>%dplyr::select(where(is.numeric)) # Remove all random variables that are not continous numerical but categorical (e.g. gender)
+numeric_data <- data%>%dplyr::select(Sleep_Hours,
+                                     Sleep_Quality_Score,
+                                     Daytime_Sleepiness,
+                                     Stroop_Task_Reaction_Time,
+                                     N_Back_Accuracy,
+                                     Emotion_Regulation_Score,
+                                     PVT_Reaction_Time,
+                                     Age,
+                                     BMI,
+                                     Caffeine_Intake,
+                                     Physical_Activity_Level,
+                                     Stress_Level) # Remove all random variables that are not continous numerical but categorical and only left necessary random varaibles 
 
 cor_matrix <- cor(numeric_data)
 print(cor_matrix) # Initial establishment of correlation  heatmap matrix mathematically without visualization
@@ -235,7 +248,7 @@ ggplot(data = cor_long,
     name = "Correlation"
   ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 10, face = "bold"), # Elaboration of word expression of names of random varaibles 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 10, face = "bold"), # Elaboration of word expression of names of random varaibles
         axis.text.y = element_text(size = 10, face = "bold"),
         plot.title = element_text (size = 20, hjust = 0.5, face = "bold")) +
   labs(title = "Correlation Matrix Heatmap", x = "", y = "",
@@ -506,7 +519,7 @@ curve (cbind (1, 0, 1, x) %*% coef(full_Aim2_model3),
        add = TRUE, # The regression line for high stress group is colored to be red
        col = "red", lwd = 3) # Slope for high-stress group
 
-legend( # Assignment of names to the three slopes
+legend( # Assignment of names correspondingly to the three slopes
   "topleft", legend=c(
     "Low Stress",
     "Moderate Stress",
