@@ -3,8 +3,8 @@
 # Read the file from the local computer 
 data <- read.csv("/Users/zhaolinyang/Desktop/Indpendent Project/Project 1st/Dataset.csv")
 
-install.packages("qqplotr")
-library(qqplotr) # Visualization of relationship between predcitor(s) and outcome variables
+install.packages("qqplotr") 
+library(qqplotr) # Visualization of relationship between predictor varaibles and outcome variables
 install.packages("psych")
 library(psych)
 install.packages("lmtest")
@@ -39,7 +39,7 @@ library(reshape2)
 library(Hmisc)
 
 #=====================================================================================================================
-# MODULE1: Dataset Overview and Descriptive Statistics
+# MODULE1: Dataset Overview and Descriptive Statistics (EDA)
 #=====================================================================================================================
 
 # STEP1: Brief overall summary for the whole data
@@ -51,10 +51,9 @@ summary(data) # Generate a brief descriptive summary of all variables
 colSums(is.na(data)) #Confirmation as described by the authors, there is no missing value in the dataset
 sum(duplicated(data)) #Checking for any duplicated rows in the data 
 
-# STEP2 Focusing on variables of interest with description and summary
+# STEP2 Focusing on variables of interest with description and give one initial summary
 # Seven variables of interest included in the two aims. Mainly focusing on the sample statistics of the 7 variables
 variables <- c("Sleep_Hours", 
-               "Sleep_Quality_Score", 
                "Emotion_Regulation_Score",
                "Stress_Level",
                "Stroop_Task_Reaction_Time",
@@ -70,10 +69,82 @@ descriptive_statistics_table <-cbind(Mean = mean_values,
 round(descriptive_statistics_table,2) #Combine the values to be a table for summary and comparison
 
 #=====================================================================================================================
-# MODULE2: Necessary Data Preparation prior to formal data analysis
+# MODULE2: Correlation Matrix Heatmap for Visualization of overall structure of correlations
 #=====================================================================================================================
 
-# STEP1: Generation of mean-centered variables (sleep-hours, sleep quality and emotional regulation score for AIM2)
+# Initial Visually exploration of the correlation structure among variables through correlation matrix heatmap
+# Construction of correlation matrix heatmap
+numeric_data <- data%>%dplyr::select(Sleep_Hours,
+                                     Sleep_Quality_Score,
+                                     Daytime_Sleepiness,
+                                     Stroop_Task_Reaction_Time,
+                                     N_Back_Accuracy,
+                                     Emotion_Regulation_Score,
+                                     PVT_Reaction_Time,
+                                     Age,
+                                     BMI,
+                                     Caffeine_Intake,
+                                     Physical_Activity_Level,
+                                     Stress_Level) # Remove all random variables that are not continous numerical but categorical and only left necessary random varaibles 
+
+cor_matrix <- cor(numeric_data) 
+print(cor_matrix) # Initial establishment of correlation matrix heatmap mathematically without visualization
+
+# Calculation of values of standardized correlation coefficients and corresponding P-values
+cor_results <- rcorr(as.matrix(numeric_data))
+print(cor_results)
+cor_matrix <- cor_results$r
+sig_matrix <- cor_results$P
+
+stars <- ifelse(cor_matrix == 0, "", 
+                ifelse(sig_matrix < 0.001, "***",
+                       ifelse(sig_matrix <  0.01, "**",
+                              ifelse(sig_matrix <0.05, "*",
+                                     "")
+                              )
+                       )
+                ) # Stars as indicators of significance. In this heatmap, no star represents there is statistical insignificance
+
+diag(stars) <- "" # Matrix diagnol elements are special (self-correlation)
+
+cor_long <- melt(cor_matrix)
+signif_long <- melt(stars)
+
+cor_long$stars <- signif_long$value
+
+ggplot(data = cor_long, 
+       aes(x = Var1, y = Var2, fill = value)) +   
+  geom_tile() +
+  geom_text(aes(label = paste0(round(value,2),stars)), # Combining values of values of standardized coefficients and significance stars together into blocks
+            color = "black", 
+            size = 4,
+            data = cor_long) +
+  scale_fill_gradient2(                
+    low = "red", 
+    high = "blue", 
+    mid = "white",
+    midpoint = 0,
+    limits = c(-1, 1), 
+    space = "Lab", 
+    name = "Correlation"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 10, face = "bold"), # Elaboration of word expression of names of random varaibles
+        axis.text.y = element_text(size = 10, face = "bold"),
+        plot.title = element_text (size = 20, hjust = 0.5, face = "bold")) +
+  labs(title = "Correlation Matrix Heatmap", x = "", y = "",
+       caption = "*, p < .05; ** p < .01, *** p < 0.001"
+  )
+# Correlation Heatmap is used for data exploration as it indicates zero-order standardized correlation coefficients among random. variables 
+# Apparently, the map shows any pairwise zero-order associations among continous variables are not statistically significant 
+# Nevertheless, it does not mean the modelling is unnecessary and meaningless since modelling is important for providing conditional associations in multiple linear regression
+# Regression-based approach address different questions by estimating conditional associations, quantifying unstandardized effects, examinging model assumptions and evaluating potential interaction effects.
+
+#=====================================================================================================================
+# MODULE2: Models-Specific Preparation
+#=====================================================================================================================
+
+# STEP1: Generation of mean-centered variables of interest(sleep-hours, stress levels and emotional regulation score for AIM2)
 data$c_sleep_hours <- data$Sleep_Hours - mean(data$Sleep_Hours) # Mean-centering of sleep duration in a newly created column
 data$c_emotion_regulation <- data$Emotion_Regulation_Score - mean(data$Emotion_Regulation_Score) # Mean-centering of emotion regulation in a newly created column
 data$c_Stress_Level <- data$Stress_Level - mean(data$Stress_Level) # Mean-centering of stress level in a newly created colum
@@ -193,68 +264,6 @@ Multicollinearity_Checking <- function(model){ # Use hte function when model inc
 
 #All of the above defined functions can be used in any models directly before formal data analysis for diagnosis of assumption with change of specific model as input
 
-# Initial Visually exploration of the correlation structure among variables through correlation matrix heatmap
-# Construction of correlation matrix heatmap
-numeric_data <- data%>%dplyr::select(Sleep_Hours,
-                                     Sleep_Quality_Score,
-                                     Daytime_Sleepiness,
-                                     Stroop_Task_Reaction_Time,
-                                     N_Back_Accuracy,
-                                     Emotion_Regulation_Score,
-                                     PVT_Reaction_Time,
-                                     Age,
-                                     BMI,
-                                     Caffeine_Intake,
-                                     Physical_Activity_Level,
-                                     Stress_Level) # Remove all random variables that are not continous numerical but categorical and only left necessary random varaibles 
-
-cor_matrix <- cor(numeric_data)
-print(cor_matrix) # Initial establishment of correlation  heatmap matrix mathematically without visualization
-
-# Calculation of values of standardized correlation coefficients and corresponding P-valus
-
-cor_results <- rcorr(as.matrix(numeric_data))
-print(cor_results)
-cor_matrix <- cor_results$r
-sig_matrix <- cor_results$P
-
-stars <- ifelse(cor_matrix == 0, "", 
-                ifelse(sig_matrix < 0.001, "***",
-                ifelse(sig_matrix <  0.01, "**",
-                       ifelse(sig_matrix <0.05, "*",
-                              ""))))
-
-diag(stars) <- ""
-
-cor_long <- melt(cor_matrix)
-signif_long <- melt(stars)
-
-cor_long$stars <- signif_long$value
-
-ggplot(data = cor_long, 
-       aes(x = Var1, y = Var2, fill = value)) +   
-  geom_tile() +
-  geom_text(aes(label = paste0(round(value,2),stars)), # Combining values of values of standardized coefficients and significance stars together into blocks
-            color = "black", 
-            size = 4,
-            data = cor_long) +
-  scale_fill_gradient2(                
-    low = "red", 
-    high = "blue", 
-    mid = "white",
-    midpoint = 0,
-    limits = c(-1, 1), # S
-    space = "Lab", 
-    name = "Correlation"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 10, face = "bold"), # Elaboration of word expression of names of random varaibles
-        axis.text.y = element_text(size = 10, face = "bold"),
-        plot.title = element_text (size = 20, hjust = 0.5, face = "bold")) +
-  labs(title = "Correlation Matrix Heatmap", x = "", y = "",
-       caption = "*, p < .05; ** p < .01, *** p < 0.001"
-  )
-# Correlation Heatmap is used for data exploration as it indicates zero-order standardized correaltion coefficeint among random. varaibles 
 
 #=====================================================================================================================
 # MODULE3: Data Analysis Aim 1: Behavioural and Psychological Contributors and Emotion Regulation Ability
@@ -326,7 +335,7 @@ confint(Aim1_model2, level = .95) # 95% confidence interval for parameter estima
 
 # 3D Space scatterplot Visualization
 Three_D_visualization <- with(data,
-                      scatterplot3d (Emotion_Regulation_Score ~ c_sleep_hours + c_Stress_Level
+                      scatterplot3d (Emotion_Regulation_Score ~ c_sleep_hours + c_Stress_Level,
                                      xlab = "Sleep Hours(mean-centering)", 
                                      ylab = "Stress Levels(mean-centering)", 
                                      zlab = "Emotion Regulation Scores",
@@ -334,6 +343,7 @@ Three_D_visualization <- with(data,
                                      pch = 20, 
                                      color = "blue")
 )
+
 Three_D_visualization$plane3d(Aim1_model2)  # OLS-based constructed hyperplane representing "best-fitting" solution in Multiple linear regression 
 
 d_R_Square <- summary(Aim1_model2)$adj.r.squared - summary(Aim1_model1)$adj.r.squared # Difference on adjusted R^square in comparison
@@ -453,10 +463,10 @@ curve(
   lwd=2
 )
 
-Residuals_Normality_Checking(Aim2_model3)
-Linearity_Relationship_Checking(Aim2_model3)
-Homoscedasticity_Checking(Aim2_model3)
-Outlier_Checking(Aim2_model3)
+Residuals_Normality_Checking(Aim2_model2)
+Linearity_Relationship_Checking(Aim2_model2)
+Homoscedasticity_Checking(Aim2_model2)
+Outlier_Checking(Aim2_model2)
 
 Bootstrapping_result <- Boot(Aim2_model2, R = 5000) # 5000 samples is recommended for stability
 confint(Bootstrapping_result, level = 0.95) 
