@@ -168,9 +168,7 @@ data$Stress_Group <- factor(data$Stress_Group,
                             levels = c("Low Stress", "Moderate Stress", "High Stress")
                             ) #Low stress group (stress level: 0-13) is baseline group of reference for later ANCOVA
 
-#=====================================================================================================================
-# MODULE3: Reusable Assumption Diagnostics Functions
-#=====================================================================================================================
+
 # For valid conventional sampling-distribution-based inference, certain assumptions ought to be resonably satisfied for each fitted regression model.
 # In other words, regression assumptions are examined for each fitted model rather than for the dataset as a whole.
 
