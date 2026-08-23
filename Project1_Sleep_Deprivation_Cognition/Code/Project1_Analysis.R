@@ -332,14 +332,16 @@ Outlier_Checking(Aim1_model2) #
 Multicollinearity_Checking(Aim1_model2) # Checking for multicollinearity since there are two predictors now
 
 confint(Aim1_model2, level = .95) # 95% confidence interval for parameter estimation
+# Either predictors' bootstrapping 95% CI do not exclude 0, implying that neither sleep hours nor stress levels is statistically significant independent predictors
+# Therefore, there is insufficient evidence of meaningful independent effects of sleep hours and stress level (here, respectively behavioral and psychological contributors)
 
 # 3D Space scatterplot Visualization
 Three_D_visualization <- with(data,
                       scatterplot3d (Emotion_Regulation_Score ~ c_sleep_hours + c_Stress_Level,
-                                     xlab = "Sleep Hours(mean-centering)", 
-                                     ylab = "Stress Levels(mean-centering)", 
+                                     xlab = "Sleep Hours (mean-centering)", 
+                                     ylab = "Stress Level (mean-centering)", 
                                      zlab = "Emotion Regulation Scores",
-                                     main = "Multiple Regression Visualization of Bheavioural and Psychological Predictors of Emotion Regulation",
+                                     main = "Multiple Regression of Bheavioural and Psychological Predictors of Emotion Regulation",
                                      pch = 20, 
                                      color = "blue")
 )
@@ -350,6 +352,8 @@ d_R_Square <- summary(Aim1_model2)$adj.r.squared - summary(Aim1_model1)$adj.r.sq
 Comparison <- anova(Aim1_model1,Aim1_model2) # Comparison on improvement between model indicates whether the improvement is statistically significantly 
 cat("Magnitude of R^2:", round(d_R_Square, 3),
     "\nP-Value:", round(Comparison$`Pr(>F)`[2], 3)) # Output results; Magnitude and statistical significance of improvement
+# Insignificance result implies that there is no improvement on model fitting with incorporation of stress level as a novel predictor
+# It practically indicates that insufficient evidence of incremental explanatory value beyond the predictors incorporated in the model is provided
 
 Moderation_model3 <- lm(Emotion_Regulation_Score ~ c_sleep_hours*c_Stress_Level, data = data) # Incorporating interaction term
 summary(Moderation_model3) # Primarily focusing on statistical significance of interaction term
@@ -498,7 +502,8 @@ Aim2_model3_Checking <- lm(N_Back_Accuracy ~ Stress_Group*c_emotion_regulation,
 anova(
   Reduced_Aim2_model3,
   Aim2_model3_Checking
-)# Examination of statistical significance of interaction term
+)# Examination of statistical significance of interaction term for diagnosis of assumption (slope homogeneity)
+# The assumption for valid conduction of ANCOVA is slope homogeneity becuase it ensures that the difference of adjusted means can be equal everywhere across values of the covariate
 
 full_Aim2_model3 <- aov(N_Back_Accuracy ~ Stress_Group + c_emotion_regulation,
                         data = data) # ANCOVA model incorporating centered emotion reuglation score as a covariate
@@ -542,6 +547,7 @@ legend( # Assignment of names correspondingly to the three slopes
   col=c("brown","blue","red"),
   lwd=3
 )
+# the assumption of homogenity of slopes is indirectly further verified because approximate parallel slopes are observed
 
 lsmeans(full_Aim2_model3, "Stress_Group") # Output of adjusted group means in controlling emotion regulation scores to its mean for observations
 
