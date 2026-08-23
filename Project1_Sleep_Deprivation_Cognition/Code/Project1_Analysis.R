@@ -3,7 +3,7 @@
 # Read the file from the local computer 
 data <- read.csv("/Users/zhaolinyang/Desktop/Indpendent Project/Project 1st/Dataset.csv")
 
-vinstall.packages("qqplotr")
+install.packages("qqplotr")
 library(qqplotr) # Visualization of relationship between predcitor(s) and outcome variables
 install.packages("psych")
 library(psych)
@@ -75,7 +75,6 @@ round(descriptive_statistics_table,2) #Combine the values to be a table for summ
 
 # STEP1: Generation of mean-centered variables (sleep-hours, sleep quality and emotional regulation score for AIM2)
 data$c_sleep_hours <- data$Sleep_Hours - mean(data$Sleep_Hours) # Mean-centering of sleep duration in a newly created column
-data$c_sleep_quality <- data$Sleep_Quality_Score - mean(data$Sleep_Quality_Score) # Mean-centering of sleep quality in a newly created column
 data$c_emotion_regulation <- data$Emotion_Regulation_Score - mean(data$Emotion_Regulation_Score) # Mean-centering of emotion regulation in a newly created column
 data$c_Stress_Level <- data$Stress_Level - mean(data$Stress_Level) # Mean-centering of stress level in a newly created colum
 
@@ -194,9 +193,6 @@ Multicollinearity_Checking <- function(model){ # Use hte function when model inc
 
 #All of the above defined functions can be used in any models directly before formal data analysis for diagnosis of assumption with change of specific model as input
 
-#=====================================================================================================================
-# MODULE3: Data Analysis Aim 1: Sleepiness-Related Measurements and Emotion Regulation Ability
-#=====================================================================================================================
 # Initial Visually exploration of the correlation structure among variables through correlation matrix heatmap
 # Construction of correlation matrix heatmap
 numeric_data <- data%>%dplyr::select(Sleep_Hours,
@@ -222,10 +218,14 @@ print(cor_results)
 cor_matrix <- cor_results$r
 sig_matrix <- cor_results$P
 
-stars <- ifelse(sig_matrix < 0.001, "***",
+stars <- ifelse(cor_matrix == 0, "", 
+                ifelse(sig_matrix < 0.001, "***",
                 ifelse(sig_matrix <  0.01, "**",
                        ifelse(sig_matrix <0.05, "*",
-                              "n.s")))
+                              ""))))
+
+diag(stars) <- ""
+
 cor_long <- melt(cor_matrix)
 signif_long <- melt(stars)
 
@@ -234,16 +234,16 @@ cor_long$stars <- signif_long$value
 ggplot(data = cor_long, 
        aes(x = Var1, y = Var2, fill = value)) +   
   geom_tile() +
-  geom_text(aes(label = paste0(round(value,2),stars)), 
+  geom_text(aes(label = paste0(round(value,2),stars)), # Combining values of values of standardized coefficients and significance stars together into blocks
             color = "black", 
-            size = 3,
+            size = 4,
             data = cor_long) +
   scale_fill_gradient2(                
     low = "red", 
     high = "blue", 
     mid = "white",
     midpoint = 0,
-    limits = c(-1, 1),
+    limits = c(-1, 1), # S
     space = "Lab", 
     name = "Correlation"
   ) +
@@ -252,10 +252,13 @@ ggplot(data = cor_long,
         axis.text.y = element_text(size = 10, face = "bold"),
         plot.title = element_text (size = 20, hjust = 0.5, face = "bold")) +
   labs(title = "Correlation Matrix Heatmap", x = "", y = "",
-       caption = "n.s, p > 0.05, *, p < .05; ** p < .01, *** p < 0.001"
+       caption = "*, p < .05; ** p < .01, *** p < 0.001"
   )
 # Correlation Heatmap is used for data exploration as it indicates zero-order standardized correaltion coefficeint among random. varaibles 
 
+#=====================================================================================================================
+# MODULE3: Data Analysis Aim 1: Behavioural and Psychological Contributors and Emotion Regulation Ability
+#=====================================================================================================================
 # SUBSET1: Relationship Between Sleep Hours and Emotion Regulation Scores
 Aim1_model1 <- lm(
   Emotion_Regulation_Score ~ c_sleep_hours,
@@ -294,7 +297,7 @@ curve(
   lwd=2
 )
 
-# Assumption Checking
+# Assumption Checking for model1
 Residuals_Normality_Checking(Aim1_model1) # Checking for normality of errors
 Linearity_Relationship_Checking(Aim1_model1) # Checking for whether relationship is linear
 Homoscedasticity_Checking(Aim1_model1) # B-P test for checking homogeneity of variance
@@ -303,10 +306,11 @@ Outlier_Checking(Aim1_model1) # Checking for the existence of serious outlier
 #Due to potential deviation from residual normality (S-W test shows a statistical significant result), bootstrap confidence intervals were additionally examined.
 Bootstrapping_result <- Boot(Aim1_model1, R = 5000) # 5000 samples is recommended for stability
 confint(Bootstrapping_result, level = 0.95) 
+# Bootstrapping confidence internal still include 0 in the 95% CI; therefore, the effect is statistically insignificant
 
-#SUBSET2: Relationship Between Sleep Quality and Sleep Hours and Emotional Regulation
+#SUBSET2: Relationship Between Stress Levels and Sleep Hours and Emotional Regulation
 Aim1_model2 <- lm(
-  Emotion_Regulation_Score ~ c_sleep_hours + c_sleep_quality,
+  Emotion_Regulation_Score ~ c_sleep_hours + c_Stress_Level,
   data = data,
   model = TRUE
 ) # Construction of the multiple linear regression model
@@ -322,11 +326,11 @@ confint(Aim1_model2, level = .95) # 95% confidence interval for parameter estima
 
 # 3D Space scatterplot Visualization
 Three_D_visualization <- with(data,
-                      scatterplot3d (Emotion_Regulation_Score ~ c_sleep_hours + c_sleep_quality,
+                      scatterplot3d (Emotion_Regulation_Score ~ c_sleep_hours + c_Stress_Level
                                      xlab = "Sleep Hours(mean-centering)", 
-                                     ylab = "Sleep Quality(mean-centering)", 
+                                     ylab = "Stress Levels(mean-centering)", 
                                      zlab = "Emotion Regulation Scores",
-                                     main = "Multiple Regression Visualization of Sleep-Related Predictors of Emotion Regulation",
+                                     main = "Multiple Regression Visualization of Bheavioural and Psychological Predictors of Emotion Regulation",
                                      pch = 20, 
                                      color = "blue")
 )
@@ -337,7 +341,7 @@ Comparison <- anova(Aim1_model1,Aim1_model2) # Comparison on improvement between
 cat("Magnitude of R^2:", round(d_R_Square, 3),
     "\nP-Value:", round(Comparison$`Pr(>F)`[2], 3)) # Output results; Magnitude and statistical significance of improvement
 
-Moderation_model3 <- lm(Emotion_Regulation_Score ~ c_sleep_hours*c_sleep_quality, data = data) # Incorporating interaction term
+Moderation_model3 <- lm(Emotion_Regulation_Score ~ c_sleep_hours*c_Stress_Level, data = data) # Incorporating interaction term
 summary(Moderation_model3) # Primarily focusing on statistical significance of interaction term
 
 #END for the AIM1
