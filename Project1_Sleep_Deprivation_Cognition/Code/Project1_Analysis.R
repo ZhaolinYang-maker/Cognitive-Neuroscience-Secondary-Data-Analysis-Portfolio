@@ -1,7 +1,6 @@
 # Secondary Data Analysis Project1: Studying the Relationship between sleep deprivation and emotional regualtion and relationship between psychological states and cognitive performance
 
-# Read the file from the local computer 
-data <- read.csv("/Users/zhaolinyang/Desktop/Indpendent Project/Project 1st/Dataset.csv")
+data <- read.csv("Cognitive-Neuroscience-Secondary-Data-Analysis-Portfolio/Project1_Sleep_Deprivation_Cognition/Report/Original_Dataset/Dataset.csv")
 set.seed(2026) # Setting random seed for reproducibility of bootstrapping resampling results 
 
 ## Section for packages installation
