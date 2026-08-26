@@ -136,9 +136,9 @@ ggplot(data = cor_long,
   labs(title = "Correlation Matrix Heatmap", x = "", y = "",
        caption = "*, p < .05; ** p < .01, *** p < 0.001"
   )
-# Correlation Heatmap is used for data exploration as it indicates zero-order standardized correlation coefficients among random. variables 
-# Apparently, the map shows any pairwise zero-order associations among continous variables are not statistically significant 
-# Nevertheless, it does not mean the modelling is unnecessary and meaningless since modelling is important for providing conditional associations in multiple linear regression
+# Exploratory visualization of zero-order Pearson correlations in the heatmap
+# among continuous variables. Statistical interpretation is
+# reported in the accompanying analysis report.
 # Regression-based approach address different questions by estimating conditional associations, quantifying unstandardized effects, examinging model assumptions and evaluating potential interaction effects.
 
 #=====================================================================================================================
