@@ -2,30 +2,22 @@
 
 # Read the file from the local computer 
 data <- read.csv("/Users/zhaolinyang/Desktop/Indpendent Project/Project 1st/Dataset.csv")
+set.seed(2026) # Setting random seed for reproducibility of bootstrapping resampling results 
 
-install.packages("qqplotr") 
-library(qqplotr) # Visualization of relationship between predictor varaibles and outcome variables
+## Section for packages installation
+install.packages("qqplotr") # Visualization of relationship between predictor varaibles and outcome variables
 install.packages("psych")
-library(psych)
 install.packages("lmtest")
-library(lmtest)
 install.packages("car")
-library(car)
-install.packages("boot")
-library(boot) # Bootstrapping when there is violation of normality of errors in assumptions checking
-install.packages("scatterplot3d")
-library(scatterplot3d) # Visualization of multiple linear regression in a 3D space with OLS hyperplane(two dimensions)
+install.packages("boot") # Bootstrapping when there is violation of normality of errors in assumptions checking
+install.packages("scatterplot3d") # Visualization of multiple linear regression in a 3D space with OLS hyperplane(two dimensions)
 
 # Necessary packages for principal component analysis (PCA) for variables compression exploratorily 
 install.packages("MASS")
 install.packages("factoextra")
 install.packages("ggplot2") 
-library(MASS)
-library(factoextra)
-library(ggplot2) 
 
-install.packages("emmeans") 
-library(emmeans) # Calling for levene test particularly designed for testing of homogeneity of variance in ANOVA or ANCOVA
+install.packages("emmeans") # Calling for levene test particularly designed for testing of homogeneity of variance in ANOVA or ANCOVA
 
 # Installation of necessary packages for construction of correlation heatma for exploratory visualization
 install.packages("corrplot")
@@ -33,6 +25,18 @@ install.packages("dplyr")
 # Due to internet restriction, mirror site is used for the installation. Here, mirror site of Tsinghua University is used for the installation
 install.packages("reshape2", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/") 
 install.packages("Hmisc", repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/")
+
+## The Section for Corresponding Packages Loading
+library(qqplotr)
+library(psych)
+library(lmtest)
+library(car)
+library(boot) 
+library(scatterplot3d) 
+library(MASS)
+library(factoextra)
+library(ggplot2) 
+library(emmeans) # Calling for levene test particularly designed for testing of homogeneity of variance in ANOVA or ANCOVA
 library(corrplot)
 library(dplyr)
 library(reshape2)
