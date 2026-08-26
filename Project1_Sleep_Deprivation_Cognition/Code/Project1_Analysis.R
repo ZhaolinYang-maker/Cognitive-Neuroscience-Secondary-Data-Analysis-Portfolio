@@ -71,9 +71,7 @@ descriptive_statistics_table <-cbind(Mean = mean_values,
                                      SD = SD_values)
 round(descriptive_statistics_table,2) #Combine the values to be a table for summary and comparison
 
-#=====================================================================================================================
-# MODULE2: Correlation Matrix Heatmap for Visualization of overall structure of correlations
-#=====================================================================================================================
+## MODULE2: Correlation Matrix Heatmap for Visualization of overall structure of correlations
 
 # Initial Visually exploration of the correlation structure among variables through correlation matrix heatmap
 # Construction of correlation matrix heatmap
@@ -144,7 +142,7 @@ ggplot(data = cor_long,
 # Regression-based approach address different questions by estimating conditional associations, quantifying unstandardized effects, examinging model assumptions and evaluating potential interaction effects.
 
 #=====================================================================================================================
-# MODULE2: Models-Specific Preparation
+# MODULE2: Models-Specific Preparation Beforehand
 #=====================================================================================================================
 
 # STEP1: Generation of mean-centered variables of interest(sleep-hours, stress levels and emotional regulation score for AIM2)
