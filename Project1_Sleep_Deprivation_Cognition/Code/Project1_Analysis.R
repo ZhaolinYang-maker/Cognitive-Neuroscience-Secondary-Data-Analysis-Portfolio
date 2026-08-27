@@ -48,28 +48,12 @@ library(Hmisc)
 # STEP1: Brief overall summary for the whole data
 dim(data) # Quick check for the number of sample size (N = 60) and number of variables (p = 14)
 names(data) # Labeling variable names. Especially useful for quick check for if there is any misspelling in code
+str(data) # Clarifying the types of each random varaible for better later manipulations for analyses
 summary(data) # Generate a brief descriptive summary of all variables
 
 #Checking missing values in the whole data
 colSums(is.na(data)) #Confirmation as described by the authors, there is no missing value in the dataset
 sum(duplicated(data)) #Checking for any duplicated rows in the data 
-
-# STEP2 Focusing on variables of interest with description and give one initial summary
-# Seven variables of interest included in the two aims. Mainly focusing on the sample statistics of the 7 variables
-variables <- c("Sleep_Hours", 
-               "Emotion_Regulation_Score",
-               "Stress_Level",
-               "Stroop_Task_Reaction_Time",
-               "N_Back_Accuracy",
-               "PVT_Reaction_Time")
-
-mean_values <- sapply(data[variables], mean) # Computation of each variable's mean
-variance_values <- sapply(data[variables], var) # Computation of each variable's variance in sample
-SD_values <- sapply(data[variables], sd) #Computation of each variable's standard deviation in sample
-descriptive_statistics_table <-cbind(Mean = mean_values,
-                                     variance = variance_values,
-                                     SD = SD_values)
-round(descriptive_statistics_table,2) #Combine the values to be a table for summary and comparison
 
 ## MODULE2: Correlation Matrix Heatmap for Visualization of overall structure of correlations
 
@@ -149,6 +133,23 @@ ggplot(data = cor_long,
 data$c_sleep_hours <- data$Sleep_Hours - mean(data$Sleep_Hours) # Mean-centering of sleep duration in a newly created column
 data$c_emotion_regulation <- data$Emotion_Regulation_Score - mean(data$Emotion_Regulation_Score) # Mean-centering of emotion regulation in a newly created column
 data$c_Stress_Level <- data$Stress_Level - mean(data$Stress_Level) # Mean-centering of stress level in a newly created colum
+
+# Constructing a table giving summarization of variables of interest
+variables <- c("c_sleep_hours", 
+               "c_emotion_regulation",
+               "c_Stress_Level",
+               "Stroop_Task_Reaction_Time",
+               "N_Back_Accuracy",
+               "PVT_Reaction_Time"
+               ) # Creating a dataframe where the row represents varaibles of interest
+
+mean_values <- sapply(data[variables], mean) # Apply mean calculation for each row in the matrix
+variance_values <- sapply(data[variables], var) # Apply variaance calculation for each row in the matrix
+SD_values <- sapply(data[variables], sd) # Apply standard deviation calculation for each row in the matrix
+descriptive_statistics_table <-cbind(Mean = mean_values,
+                                     variance = variance_values,
+                                     SD = SD_values)
+round(descriptive_statistics_table,2) #Combine the values to be a table for summary and comparison
 
 #STEP2 Converting continous stress level to categorical variable with three groups based on criteria of level of stress (Perceived Stress Scale PSS-10)
 # PSS-10 evaluates stress levels on a 0 to 40 scale. It classifies low stress group (0-10), moderate stress (14-26) and high stress group (27-40)
