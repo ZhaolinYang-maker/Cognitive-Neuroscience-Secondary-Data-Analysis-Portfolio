@@ -134,18 +134,18 @@ data$c_sleep_hours <- data$Sleep_Hours - mean(data$Sleep_Hours) # Mean-centering
 data$c_emotion_regulation <- data$Emotion_Regulation_Score - mean(data$Emotion_Regulation_Score) # Mean-centering of emotion regulation in a newly created column
 data$c_Stress_Level <- data$Stress_Level - mean(data$Stress_Level) # Mean-centering of stress level in a newly created colum
 
-# Constructing a table giving summarization of variables of interest
+# Constructing a table giving summary of variables of interest
 variables <- c("c_sleep_hours", 
                "c_emotion_regulation",
                "c_Stress_Level",
                "Stroop_Task_Reaction_Time",
                "N_Back_Accuracy",
                "PVT_Reaction_Time"
-               ) # Creating a dataframe where the row represents varaibles of interest
+               ) # Creating a dataframe where variables of interest are aligned in a colunm
 
-mean_values <- sapply(data[variables], mean) # Apply mean calculation for each row in the matrix
-variance_values <- sapply(data[variables], var) # Apply variaance calculation for each row in the matrix
-SD_values <- sapply(data[variables], sd) # Apply standard deviation calculation for each row in the matrix
+mean_values <- sapply(data[variables], mean) # Apply mean calculation for column of the matrix
+variance_values <- sapply(data[variables], var) # Apply variance calculation for column of the matrix
+SD_values <- sapply(data[variables], sd) # Apply standard deviation calculation for column of the matrix
 descriptive_statistics_table <-cbind(Mean = mean_values,
                                      variance = variance_values,
                                      SD = SD_values)
