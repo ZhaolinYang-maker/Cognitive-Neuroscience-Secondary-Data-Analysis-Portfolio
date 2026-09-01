@@ -42,7 +42,7 @@ library(reshape2)
 library(Hmisc)
 
 #=====================================================================================================================
-# MODULE1: Exloratory Data Analysis (EDA)
+# MODULE1: Dataset Overview and Descriptive Statistics (EDA)
 #=====================================================================================================================
 
 # STEP1: Brief overall summary for the whole data
@@ -57,7 +57,6 @@ sum(duplicated(data)) #Checking for any duplicated rows in the data
 
 ## MODULE2: Correlation Matrix Heatmap for Visualization of overall structure of correlations
 
-# For multivariate EDA
 # Initial Visually exploration of the correlation structure among variables through correlation matrix heatmap
 # Construction of correlation matrix heatmap
 numeric_data <- data%>%dplyr::select(Sleep_Hours,
@@ -139,6 +138,7 @@ data$c_Stress_Level <- data$Stress_Level - mean(data$Stress_Level) # Mean-center
 variables <- c("c_sleep_hours", 
                "c_emotion_regulation",
                "c_Stress_Level",
+               "Emotion_Regulation_Score",
                "Stroop_Task_Reaction_Time",
                "N_Back_Accuracy",
                "PVT_Reaction_Time"
@@ -154,8 +154,8 @@ round(descriptive_statistics_table,2) #Combine the values to be a table for summ
 
 #STEP2 Converting continous stress level to categorical variable with three groups based on criteria of level of stress (Perceived Stress Scale PSS-10)
 # PSS-10 evaluates stress levels on a 0 to 40 scale. It classifies low stress group (0-10), moderate stress (14-26) and high stress group (27-40)
-data$Moderate_stress <- ifelse(14 <= data$Stress_Level
-                             &data$Stress_Level <= 26, 
+data$Moderate_stress <- ifelse(14 <= data$Stress_Level&
+                               data$Stress_Level <= 26, 
                              1, 0)
 data$High_stress <- ifelse(27 <= data$Stress_Level&
                                 data$Stress_Level <= 40, 
@@ -336,7 +336,7 @@ confint(Aim1_model2, level = .95) # 95% confidence interval for parameter estima
 # Either predictors' bootstrapping 95% CI do not exclude 0, implying that neither sleep hours nor stress levels is statistically significant independent predictors
 # Therefore, there is insufficient evidence of meaningful independent effects of sleep hours and stress level (here, respectively behavioral and psychological contributors)
 
-# 3D Space scatterplot Visualization.
+# 3D Space scatterplot Visualization
 Three_D_visualization <- with(data,
                       scatterplot3d (Emotion_Regulation_Score ~ c_sleep_hours + c_Stress_Level,
                                      xlab = "Sleep Hours (mean-centering)", 
@@ -354,8 +354,7 @@ Comparison <- anova(Aim1_model1,Aim1_model2) # Comparison on improvement between
 cat("Magnitude of R^2:", round(d_R_Square, 3),
     "\nP-Value:", round(Comparison$`Pr(>F)`[2], 3)) # Output results; Magnitude and statistical significance of improvement
 # Insignificance result implies that there is no improvement on model fitting with incorporation of stress level as a novel predictor
-# It practically indicates that insufficient evidence of incremental explanatory value beyond the psychophysiology-related predictors incorporated in the model is provided
-
+# It practically indicates that insufficient evidence of incremental explanatory value beyond the predictors incorporated in the model is provided
 
 Moderation_model3 <- lm(Emotion_Regulation_Score ~ c_sleep_hours*c_Stress_Level, data = data) # Incorporating interaction term
 summary(Moderation_model3) # Primarily focusing on statistical significance of interaction term
@@ -363,11 +362,11 @@ summary(Moderation_model3) # Primarily focusing on statistical significance of i
 #END for the AIM1
 
 #=====================================================================================================================
-# MODULE4: Data Analysis Aim 2: Cognitive Performance and Psychophysiology-related Predictors
+# MODULE4: Data Analysis Aim 2: Cognitive Performance VS psychology-related predictors
 #=====================================================================================================================
-# SUBSET 1: Exploratory data analysis for testing whether the three cognitive ability measurements can be compressed to one variable (e.g. a potential general cognitive ability indicator)
+# SUBSET 1: Exploratory data analysis for testing whether the three cognitive ability measurements can be compressed to one variable (e.g. general cognitive ability indicator)
 
-# Principal Component Analysis (PCA) is conducted; PCA aims to compress the three variables with preservation of most information (total variance within each variable)
+# Exploratory Principal Component Analysis (PCA) is conducted; PCA aims to compress the three variables with preservation of most information (total variance within each variable)
 Cognitive_Measurement <- data[, c(
   "Stroop_Task_Reaction_Time",
   "N_Back_Accuracy",
@@ -556,3 +555,5 @@ lsmeans(full_Aim2_model3, "Stress_Group") # Output of adjusted group means in co
 #=====================================================================================================================
 # END for the Project1 Secondary Data Analysis
 #=====================================================================================================================
+ttt <- lm(Stress_Level ~  Sleep_Hours, data = data)
+summary(ttt)
