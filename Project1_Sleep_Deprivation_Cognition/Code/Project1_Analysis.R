@@ -117,7 +117,7 @@ ggplot(data = cor_long,
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 10, face = "bold"), # Elaboration of word expression of names of random varaibles
         axis.text.y = element_text(size = 10, face = "bold"),
         plot.title = element_text (size = 20, hjust = 0.5, face = "bold")) +
-  labs(title = "Correlation Matrix Heatmap", x = "", y = "",
+  labs(title = "Correlation Matrix Heatmap (CMH)", x = "", y = "",
        caption = "*, p < .05; ** p < .01, *** p < 0.001"
   )
 # Exploratory visualization of zero-order Pearson correlations in the heatmap
@@ -138,7 +138,6 @@ data$c_Stress_Level <- data$Stress_Level - mean(data$Stress_Level) # Mean-center
 variables <- c("c_sleep_hours", 
                "c_emotion_regulation",
                "c_Stress_Level",
-               "Emotion_Regulation_Score",
                "Stroop_Task_Reaction_Time",
                "N_Back_Accuracy",
                "PVT_Reaction_Time"
@@ -154,8 +153,8 @@ round(descriptive_statistics_table,2) #Combine the values to be a table for summ
 
 #STEP2 Converting continous stress level to categorical variable with three groups based on criteria of level of stress (Perceived Stress Scale PSS-10)
 # PSS-10 evaluates stress levels on a 0 to 40 scale. It classifies low stress group (0-10), moderate stress (14-26) and high stress group (27-40)
-data$Moderate_stress <- ifelse(14 <= data$Stress_Level&
-                               data$Stress_Level <= 26, 
+data$Moderate_stress <- ifelse(14 <= data$Stress_Level
+                             &data$Stress_Level <= 26, 
                              1, 0)
 data$High_stress <- ifelse(27 <= data$Stress_Level&
                                 data$Stress_Level <= 40, 
@@ -362,11 +361,11 @@ summary(Moderation_model3) # Primarily focusing on statistical significance of i
 #END for the AIM1
 
 #=====================================================================================================================
-# MODULE4: Data Analysis Aim 2: Cognitive Performance VS psychology-related predictors
+# MODULE4: Data Analysis Aim 2: Cognitive Performance and Psychological States
 #=====================================================================================================================
 # SUBSET 1: Exploratory data analysis for testing whether the three cognitive ability measurements can be compressed to one variable (e.g. general cognitive ability indicator)
 
-# Exploratory Principal Component Analysis (PCA) is conducted; PCA aims to compress the three variables with preservation of most information (total variance within each variable)
+# Principal Component Analysis (PCA) is conducted; PCA aims to compress the three variables with preservation of most information (total variance within each variable)
 Cognitive_Measurement <- data[, c(
   "Stroop_Task_Reaction_Time",
   "N_Back_Accuracy",
@@ -510,6 +509,9 @@ full_Aim2_model3 <- aov(N_Back_Accuracy ~ Stress_Group + c_emotion_regulation,
                         data = data) # ANCOVA model incorporating centered emotion reuglation score as a covariate
 summary(full_Aim2_model3)
 
+sasd<- aov(N_Back_Accuracy ~ Stress_Group,
+           data = data)
+summary(sasd)
 # Visualization of ANCOVA model 
 colors <- ifelse(data$Stress_Group== "High Stress", "red",  #Nested structure of ifelse() fucntion gurantees that each treatment (stress groups) will have a corresponding color 
                  ifelse(data$Stress_Group =="Moderate Stress", "blue","brown")
@@ -555,5 +557,3 @@ lsmeans(full_Aim2_model3, "Stress_Group") # Output of adjusted group means in co
 #=====================================================================================================================
 # END for the Project1 Secondary Data Analysis
 #=====================================================================================================================
-ttt <- lm(Stress_Level ~  Sleep_Hours, data = data)
-summary(ttt)
