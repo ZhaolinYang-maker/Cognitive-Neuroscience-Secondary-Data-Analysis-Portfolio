@@ -348,9 +348,11 @@ Three_D_visualization <- with(data,
 
 Three_D_visualization$plane3d(Aim1_model2)  # OLS-based constructed hyperplane representing "best-fitting" solution in Multiple linear regression 
 
-d_R_Square <- summary(Aim1_model2)$adj.r.squared - summary(Aim1_model1)$adj.r.squared # Difference on adjusted R^square in comparison
+d_R_Square_unadj <- summary(Aim1_model2)$r.squared - summary(Aim1_model1)$r.squared
+d_R_Square_adj <- summary(Aim1_model2)$adj.r.squared - summary(Aim1_model1)$adj.r.squared# Difference on adjusted R^square in comparison
 Comparison <- anova(Aim1_model1,Aim1_model2) # Comparison on improvement between model indicates whether the improvement is statistically significantly 
-cat("Magnitude of R^2:", round(d_R_Square, 3),
+cat("Magnitude of unadjusted R^2:", round(d_R_Square_unadj, 3), # Magnitude of unadjusted R^2 change
+    "\nMagnitude of adjusted R^2:", round(d_R_Square_adj, 3), # Magnitude of adjsuted R^2 change
     "\nP-Value:", round(Comparison$`Pr(>F)`[2], 3)) # Output results; Magnitude and statistical significance of improvement
 # Insignificance result implies that there is no improvement on model fitting with incorporation of stress level as a novel predictor
 # It practically indicates that insufficient evidence of incremental explanatory value beyond the predictors incorporated in the model is provided
