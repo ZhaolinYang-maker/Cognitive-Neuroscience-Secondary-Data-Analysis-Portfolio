@@ -377,12 +377,17 @@ Cognitive_Measurements_PCA <- prcomp(Cognitive_Measurement,
                    scale = TRUE) # Standardized data; the value of any single eigenvalue is theoretically maximally 3 (Three variables)
 summary(Cognitive_Measurements_PCA) # Proportion of total variance (normalized expression of each eigenvalue) captured each PC and cumulative proportion of explained variance
 
-#Scree plot for explained variance by PCs
+#Scree plot for explained variance by PCs (proportional eigenvalues)
 fviz_eig(Cognitive_Measurements_PCA,
-         addlabels = TRUE, # Visualization of proportion of explained variance by PCs (PVEs)
-         ylim = c(0,100),
+         addlabels = TRUE, # Visualization of proportion of explained variance by PCs, or propotional eigenvalues for each component (PVEs)
+         ylim = c(0,100), 
          main = "Scree Plot for PVEs"
-         )
+         ) +
+  theme(
+  plot.title = element_text(size = 18, hjust = 0.5, face = "bold"),
+  axis.title.x = element_text(size = 15, face = "bold"),
+  axis.title.y = element_text(size = 15, face = "bold")
+)
 
 Cognitive_Measurements_Rotation <- principal(
   Cognitive_Measurement,
