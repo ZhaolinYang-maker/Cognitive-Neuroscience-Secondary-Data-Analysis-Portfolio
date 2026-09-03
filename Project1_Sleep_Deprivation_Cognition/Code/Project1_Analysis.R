@@ -485,15 +485,21 @@ confint(Bootstrapping_result, level = 0.95)
 # SUBSET 3: Relationship Between Stress Group and N_Back_Accuracy in Controlling for Emotion Regulation Score
 Reduced_Aim2_model3 <- aov(N_Back_Accuracy ~ Stress_Group, data = data) 
 summary(Reduced_Aim2_model3)
-TukeyHSD(Reduced_Aim2_model3) # Additional Exploration and description
 
 #Visualization with boxplot
+
+par(mar = c(5.1, 6.1, 4.1, 2.1))
+
 boxplot(N_Back_Accuracy ~ Stress_Group,
         data = data,
         main = "N Back Accuracy by Stress Levels",
         xlab = "Stress Groups",
         ylab = "N Back Task Accuracy",
-        col = "lightgray"
+        col = "lightgray",
+        cex.main = 1.8,
+        font.main = 2,
+        cex.lab = 1.3,
+        cex.axis = 1.3
 )
 
 # Necessary Assumptions Checking
@@ -516,26 +522,30 @@ full_Aim2_model3 <- aov(N_Back_Accuracy ~ Stress_Group + c_emotion_regulation,
                         data = data) # ANCOVA model incorporating centered emotion reuglation score as a covariate
 summary(full_Aim2_model3)
 
-sasd<- aov(N_Back_Accuracy ~ Stress_Group,
-           data = data)
-summary(sasd)
 # Visualization of ANCOVA model 
 colors <- ifelse(data$Stress_Group== "High Stress", "red",  #Nested structure of ifelse() fucntion gurantees that each treatment (stress groups) will have a corresponding color 
                  ifelse(data$Stress_Group =="Moderate Stress", "blue","brown")
                  ) #If the stress group is high stress, then the color for observations is red; Otherwise, if it is moderate stress group, the assigned color is blue; otherwise, low stress group's observations are brown
 
+par(mar = c(5.1, 6.1, 4.1, 2.1))
+
 with(data, plot(
   c_emotion_regulation, N_Back_Accuracy,
   xlab = "(mean-centering) Emotion Regulation Scores", # Setting of name of x-dimension
   ylab = "N Back Task Accuracy",  
-  main = "Homogeneity of Slepes Visualization",
+  main = "ANCOVA Visualization with Fitted Regression Lines Across Stress Groups",
   col = colors,
   pch = 20,
   xlim=c(min(c_emotion_regulation),
          max(c_emotion_regulation)), # Setting range for x-dimension
   ylim=c(min(N_Back_Accuracy),
-         max(N_Back_Accuracy))# Setting range for y-dimension
-))
+         max(N_Back_Accuracy)),# Setting range for y-dimension
+  cex.main = 1.8,
+  font.main = 2,
+  cex.lab = 1.3,
+  cex.axis = 1.3
+ )
+)
 
 #Step 3, projecting Regression Line for graphical presentation
 curve (cbind (1, 0, 0, x) %*% coef(full_Aim2_model3), 
@@ -558,8 +568,6 @@ legend( # Assignment of names correspondingly to the three slopes
   lwd=3
 )
 # the assumption of homogenity of slopes is indirectly further verified because approximate parallel slopes are observed
-
-lsmeans(full_Aim2_model3, "Stress_Group") # Output of adjusted group means in controlling emotion regulation scores to its mean for observations
 
 #=====================================================================================================================
 # END for the Project1 Secondary Data Analysis
