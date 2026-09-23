@@ -337,7 +337,7 @@ confint(Aim1_model2, level = .95) # 95% confidence interval for parameter estima
 
 # 3D Space scatterplot Visualization
 Three_D_visualization <- with(data,
-                      scatterplot3d (Emotion_Regulation_Score ~ c_sleep_hours + c_Stress_Level,
+                      scatterplot3d(Emotion_Regulation_Score ~ c_sleep_hours + c_Stress_Level,
                                      xlab = "Sleep Hours (mean-centering)", 
                                      ylab = "Stress Level (mean-centering)", 
                                      zlab = "Emotion Regulation Scores",
